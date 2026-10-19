@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<title>Zkoušení slovíček</title>
+<meta name="description" content="Zkoušení anglických slovíček z CSV lekcí, funguje i offline.">
+<meta name="theme-color" content="#1f5fa8">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <button class="icon-btn" id="btn-back" hidden aria-label="Zpět">&#8592;</button>
+  <h1 id="title">Zkoušení slovíček</h1>
+</header>
+
+<main>
+  <!-- viditelné jen když se nenačte app.js (např. stránka otevřená přímo ze souboru) -->
+  <div id="load-error" style="border:2px solid #c62828;padding:12px;margin:12px 0;font-family:sans-serif">
+    <b>Aplikace se nenačetla celá.</b> Neotevírejte <code>index.html</code> přímo ze souboru –
+    spusťte na PC <code>./spustit.sh</code> (nebo <code>npm start</code>) a otevřete
+    <a href="http://localhost:8000/">http://localhost:8000/</a>. V telefonu ji otevřete z webové adresy (viz NAVOD.md).
+  </div>
+  <!-- ÚVOD: lekce a nastavení -->
+  <section id="screen-home" class="screen">
+    <div class="card">
+      <h2>Lekce</h2>
+      <p id="no-lessons" class="muted" hidden>Zatím nejsou načtené žádné lekce. Načtěte CSV soubory se slovíčky.</p>
+      <ul id="lesson-list" class="lesson-list"></ul>
+      <div class="row-buttons">
+        <label class="btn" for="file-input">Načíst CSV</label>
+        <input type="file" id="file-input" accept=".csv,.txt,text/csv,text/plain" multiple hidden>
+        <button class="btn" id="btn-server" hidden>Stáhnout ze serveru</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Nastavení</h2>
+      <label class="field">Jméno (pro log)
+        <input type="text" id="set-name" autocomplete="off" maxlength="40">
+      </label>
+      <div class="field">Počet opakování slova
+        <div class="stepper">
+          <button class="btn" type="button" data-step="-1" aria-label="Méně">&minus;</button>
+          <output id="set-repeat">1</output>
+          <button class="btn" type="button" data-step="1" aria-label="Více">+</button>
+        </div>
+      </div>
+      <label class="check"><input type="checkbox" id="set-czen"> z češtiny do angličtiny</label>
+      <label class="check"><input type="checkbox" id="set-encz"> z angličtiny do češtiny</label>
+      <label class="check"><input type="checkbox" id="set-notes"> zobrazovat poznámky</label>
+      <label class="check"><input type="checkbox" id="set-help"> zobrazovat nápovědu</label>
+      <label class="field">Úroveň nápovědy (počet prozrazených písmen)
+        <select id="set-helplevel">
+          <option value="0">0 – jen délka slova</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
+      </label>
+    </div>
+
+    <button class="btn primary big" id="btn-start">Spustit zkoušení</button>
+    <div class="row-buttons">
+      <button class="btn" id="btn-log">Log testů</button>
+      <button class="btn" id="btn-about">O programu</button>
+    </div>
+  </section>
+
+  <!-- ZKOUŠENÍ -->
+  <section id="screen-exam" class="screen" hidden>
+    <div class="stats">
+      <span>Zbývá: <b id="ex-remaining"></b></span>
+      <span>Opakování: <b id="ex-repeat"></b></span>
+      <span>Chyby: <b id="ex-errors"></b></span>
+    </div>
+    <div class="card exam-card">
+      <div class="muted" id="ex-direction"></div>
+      <div class="word" id="ex-word"></div>
+      <div class="note" id="ex-note"></div>
+      <div class="muted small" id="ex-type"></div>
+      <div class="help" id="ex-help" aria-label="Nápověda"></div>
+      <form id="answer-form" autocomplete="off">
+        <input type="text" id="ex-answer" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-label="Překlad">
+        <button class="btn primary" id="btn-ok" type="submit">OK</button>
+      </form>
+      <div id="ex-feedback" class="feedback" hidden>
+        <div class="wrong">Chyba!</div>
+        <div>Správný překlad:</div>
+        <div class="answer" id="ex-correct"></div>
+        <div class="muted" id="ex-correct-extra"></div>
+        <button class="btn primary big" id="btn-continue" type="button">Pokračovat</button>
+      </div>
+      <div id="ex-ok" class="right" hidden>Správně!</div>
+    </div>
+    <div class="row-buttons">
+      <button class="btn edit" id="btn-edit" type="button">Upravit slovo</button>
+      <button class="btn" id="btn-stop" type="button">Ukončit</button>
+    </div>
+  </section>
+
+  <!-- VÝSLEDEK -->
+  <section id="screen-result" class="screen" hidden>
+    <div class="card center">
+      <h2>Konec testu</h2>
+      <p class="result" id="res-text"></p>
+      <button class="btn primary big" id="btn-home">Zpět na lekce</button>
+    </div>
+  </section>
+
+  <!-- ÚPRAVA SLOVA -->
+  <section id="screen-edit" class="screen" hidden>
+    <form class="card" id="edit-form">
+      <h2>Úprava slova</h2>
+      <p class="muted small" id="edit-where"></p>
+      <label class="field">České slovíčko <input type="text" name="c0"></label>
+      <label class="field">Poznámka (česká) <input type="text" name="c1"></label>
+      <label class="field">Anglické slovíčko <input type="text" name="c2" autocapitalize="none"></label>
+      <label class="field">Poznámka (anglická) <input type="text" name="c5"></label>
+      <label class="field">Druh slova <input type="text" name="c3"></label>
+      <label class="field">Výslovnost <input type="text" name="c4"></label>
+      <div class="row-buttons">
+        <button class="btn primary" type="submit">Uložit</button>
+        <button class="btn" type="button" id="btn-edit-cancel">Zrušit</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- LOG -->
+  <section id="screen-log" class="screen" hidden>
+    <div class="card">
+      <h2>Log testů</h2>
+      <p id="no-logs" class="muted" hidden>Zatím žádný test.</p>
+      <ul id="log-list" class="log-list"></ul>
+      <div class="row-buttons">
+        <button class="btn" id="btn-log-export">Uložit jako text</button>
+        <button class="btn danger" id="btn-log-clear">Smazat log</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="screen-logdetail" class="screen" hidden>
+    <div class="card">
+      <h2 id="logdetail-title"></h2>
+      <pre id="logdetail-text" class="log-text"></pre>
+    </div>
+  </section>
+
+  <!-- O PROGRAMU -->
+  <section id="screen-about" class="screen" hidden>
+    <div class="card about">
+      <h2>Zkoušení slovíček v2.0</h2>
+      <p class="muted">pro nekomerční použití zdarma :) · (c) Prochin 10/2006 prochin05@email.cz</p>
+      <p>Z vybraných lekcí jsou náhodně vybírána slova, která musíte správně přeložit.</p>
+      <p>Počet opakování slov lze nastavit (0–10). Při správném zadání se počet opakování sníží, při chybném zvýší, ale nejvýš do nastaveného počtu. Je-li po přeložení slova počet opakování nulový, slovo se vyřadí. Např. při počtu opakování 1 musíte každé slovo přeložit alespoň jednou správně.</p>
+      <p>Lekce jsou CSV soubory (UTF-8, oddělovač středník nebo čárka). První řádek je záhlaví, sloupce: české slovíčko, poznámka (česká), anglické slovíčko, druh slova, výslovnost, poznámka (anglická). Povinné jsou jen české a anglické slovíčko. Název souboru je název lekce.</p>
+      <p>Během zkoušení můžete slovo opravit tlačítkem Upravit slovo. Upravenou lekci pak uložte zpět do CSV tlačítkem ⤓ u lekce.</p>
+      <p>Nápověda ukazuje délku slova a podle úrovně i první písmena (vždy ale musí být možné zadat alespoň 2 písmena).</p>
+      <p>Průběh každého testu se zapisuje do logu (v tomto zařízení), např. pro kontrolu dokončení testů u dětí.</p>
+      <p class="muted small">01/2023 – log průběhu testů · 10/2026 – webová verze pro telefon i PC</p>
+    </div>
+  </section>
+</main>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="logic.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

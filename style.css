@@ -1,0 +1,164 @@
+:root {
+  --bg: #eef2f7;
+  --card: #ffffff;
+  --text: #1b2430;
+  --muted: #5d6b7c;
+  --line: #d3dbe5;
+  --primary: #1f5fa8;
+  --primary-text: #ffffff;
+  --edit: #f08a24;
+  --wrong: #c62828;
+  --right: #2e7d32;
+  --input-bg: #ffffff;
+  --shadow: 0 1px 3px rgba(0, 0, 0, .12);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #11161d;
+    --card: #1c242e;
+    --text: #e8edf3;
+    --muted: #9aa8b8;
+    --line: #34404e;
+    --primary: #4d8fdb;
+    --primary-text: #0b1118;
+    --edit: #f29b45;
+    --wrong: #ff6b6b;
+    --right: #66bb6a;
+    --input-bg: #121920;
+    --shadow: none;
+  }
+}
+
+* { box-sizing: border-box; }
+html { font-size: 20px; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+  line-height: 1.4;
+}
+[hidden] { display: none !important; }
+
+.topbar {
+  position: sticky; top: 0; z-index: 2;
+  display: flex; align-items: center; gap: .5rem;
+  padding: .6rem 1rem; padding-top: max(.6rem, env(safe-area-inset-top));
+  background: var(--primary); color: var(--primary-text);
+}
+.topbar h1 { font-size: 1.15rem; margin: 0; font-weight: 600; }
+.icon-btn {
+  background: none; border: 0; color: inherit; font-size: 1.5rem;
+  min-width: 2.2rem; min-height: 2.2rem; cursor: pointer;
+}
+
+main { max-width: 40rem; margin: 0 auto; padding: 1rem 16px 3rem; }
+.card {
+  background: var(--card); border-radius: 12px; box-shadow: var(--shadow);
+  padding: 1rem; margin-bottom: 1rem;
+}
+.card h2 { margin: 0 0 .75rem; font-size: 1.1rem; }
+.center { text-align: center; }
+.muted { color: var(--muted); }
+.small { font-size: .8rem; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 2.6rem; padding: .4rem 1rem;
+  font: inherit; font-size: 1rem; color: var(--text);
+  background: var(--card); border: 2px solid var(--line); border-radius: 10px;
+  cursor: pointer; text-align: center;
+}
+.btn:active { transform: translateY(1px); }
+.btn.primary { background: var(--primary); border-color: var(--primary); color: var(--primary-text); font-weight: 600; }
+.btn.edit { border-color: var(--edit); color: var(--edit); }
+.btn.danger { border-color: var(--wrong); color: var(--wrong); }
+.btn.big { width: 100%; min-height: 3.2rem; font-size: 1.15rem; margin-bottom: 1rem; }
+.btn:disabled { opacity: .5; }
+.row-buttons { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .75rem; }
+.row-buttons > .btn { flex: 1 1 8rem; }
+
+.field { display: block; margin-bottom: .9rem; }
+input[type=text], select {
+  display: block; width: 100%; margin-top: .3rem;
+  font: inherit; font-size: 1.05rem; color: var(--text);
+  background: var(--input-bg); border: 2px solid var(--line); border-radius: 10px;
+  padding: .55rem .7rem;
+}
+input[type=text]:focus, select:focus { outline: none; border-color: var(--primary); }
+.check { display: flex; align-items: center; gap: .7rem; min-height: 2.6rem; }
+input[type=checkbox] { width: 1.5rem; height: 1.5rem; accent-color: var(--primary); flex: none; }
+.stepper { display: flex; align-items: center; gap: .8rem; margin-top: .3rem; }
+.stepper .btn { min-width: 3rem; font-size: 1.4rem; }
+.stepper output { min-width: 2rem; text-align: center; font-size: 1.4rem; font-weight: 600; }
+
+.lesson-list, .log-list { list-style: none; margin: 0; padding: 0; }
+.lesson-list li, .log-list li {
+  display: flex; align-items: center; gap: .5rem;
+  border-bottom: 1px solid var(--line); padding: .3rem 0;
+}
+.lesson-list li:last-child, .log-list li:last-child { border-bottom: 0; }
+.lesson-list .check { flex: 1; min-width: 0; }
+.lesson-list .name { overflow-wrap: break-word; min-width: 0; }
+.lesson-list .count { display: block; color: var(--muted); font-size: .8rem; }
+.lesson-list .icon-btn { color: var(--muted); font-size: 1.2rem; min-width: 2rem; padding: 0; }
+.badge { font-size: .7rem; color: var(--edit); border: 1px solid var(--edit); border-radius: 6px; padding: 0 .3rem; margin-left: .3rem; }
+
+.log-list li { cursor: pointer; flex-direction: column; align-items: flex-start; gap: .1rem; padding: .6rem 0; }
+.log-list .ok { color: var(--right); }
+.log-list .bad { color: var(--wrong); }
+.log-text { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .8rem; margin: 0; }
+
+.stats { display: flex; justify-content: space-between; gap: .5rem; flex-wrap: wrap; margin-bottom: .6rem; color: var(--muted); font-size: .9rem; }
+.stats b { color: var(--text); }
+.exam-card { text-align: center; }
+.word { font-size: 2rem; font-weight: 700; margin: .4rem 0; overflow-wrap: anywhere; }
+.note { color: var(--muted); font-style: italic; min-height: 1.4em; }
+.note:empty { min-height: 0; }
+.help { font-family: ui-monospace, "DejaVu Sans Mono", monospace; font-size: 1.6rem; letter-spacing: .2em; margin: .8rem 0; overflow-wrap: anywhere; }
+#answer-form { display: flex; gap: .5rem; margin-top: .6rem; }
+#answer-form input { margin: 0; font-size: 1.4rem; text-align: center; flex: 1; min-width: 0; }
+#answer-form .btn { flex: none; min-width: 4rem; }
+.feedback { margin-top: 1rem; }
+.feedback .wrong { color: var(--wrong); font-size: 1.8rem; font-weight: 700; }
+.feedback .answer { font-size: 1.8rem; font-weight: 700; margin: .2rem 0; overflow-wrap: anywhere; }
+.feedback .btn.big { margin-top: 1rem; margin-bottom: 0; }
+.right { color: var(--right); font-size: 1.4rem; font-weight: 700; margin-top: .8rem; }
+.result { font-size: 1.4rem; }
+.about p { margin: 0 0 .8rem; }
+
+.toast {
+  position: fixed; left: 50%; bottom: max(1.5rem, env(safe-area-inset-bottom)); transform: translateX(-50%);
+  max-width: calc(100% - 32px); background: var(--text); color: var(--bg);
+  padding: .6rem 1rem; border-radius: 10px; font-size: .9rem; z-index: 5;
+}
+
+/* Telefon: modré záhlaví se při zkoušení (a při otevřené klávesnici) skryje.
+   Zkoušení zabírá přesně viditelnou výšku nad klávesnicí, takže se stránka neposouvá
+   a slovo i počet zbývajících slov zůstanou vidět. */
+@media (max-width: 800px), (max-height: 500px) {
+  body[data-screen="exam"] .topbar { display: none; }
+  body[data-screen="exam"] main {
+    height: 100vh; height: 100dvh;
+    display: flex; flex-direction: column; overflow: hidden;
+    padding-top: max(.5rem, env(safe-area-inset-top)); padding-bottom: .5rem;
+  }
+  #screen-exam { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+  #screen-exam .stats { margin-bottom: .4rem; }
+  #screen-exam .exam-card { flex: 0 1 auto; min-height: 0; overflow-y: auto; margin-bottom: .5rem; }
+  #screen-exam .row-buttons { margin-top: auto; }
+  /* při psaní mají přednost slovo a odpověď; Upravit/Ukončit jsou vidět po zavření klávesnice */
+  body.kbd #screen-exam .row-buttons { display: none; }
+  /* s klávesnicí je málo místa: menší písmo a mezery, ať je vidět slovo i pole s odpovědí */
+  body.kbd #screen-exam .exam-card { padding: .5rem .8rem; }
+  body.kbd #screen-exam .muted { font-size: .85rem; }
+  body.kbd #screen-exam .word { font-size: 1.5rem; line-height: 1.2; margin: .15rem 0; }
+  body.kbd #screen-exam .note { font-size: .85rem; }
+  body.kbd #screen-exam .help { font-size: 1.25rem; margin: .3rem 0; }
+  body.kbd #screen-exam #answer-form { margin-top: .3rem; }
+  body.kbd #screen-exam #answer-form input { font-size: 1.2rem; padding: .35rem .6rem; }
+  body.kbd #screen-exam #answer-form .btn { min-height: 2.3rem; }
+}
+body.kbd .topbar { display: none; }
+/* hláška nesmí při psaní zakrýt pole – při otevřené klávesnici nahoru */
+body.kbd .toast { top: max(.5rem, env(safe-area-inset-top)); bottom: auto; }
